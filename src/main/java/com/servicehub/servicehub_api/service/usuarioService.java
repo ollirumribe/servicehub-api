@@ -1,11 +1,12 @@
 package com.servicehub.servicehub_api.service;
 
-import com.servicehub.servicehub_api.model.usuario;
-import com.servicehub.servicehub_api.model.usuario;
+import com.servicehub.servicehub_api.dto.usuarioRequest;
+import com.servicehub.servicehub_api.dto.usuarioUpdateRequest;
 import com.servicehub.servicehub_api.exception.ResourceNotFoundException;
-import com.servicehub.servicehub_api.repository.usuarioRepository;
+import com.servicehub.servicehub_api.model.usuario;
 import com.servicehub.servicehub_api.repository.usuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,9 @@ public class usuarioService {
     @Autowired
     private usuarioRepository usuarioRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public List<usuario> listarTodos() {
         return usuarioRepository.findAll();
     }
@@ -25,18 +29,23 @@ public class usuarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
     }
 
-    public usuario criar(usuario usuario) {
-        return usuarioRepository.save(usuario);
+    public usuario criar(usuarioRequest dados) {
+        usuario novo = new usuario();
+        novo.setFullName(dados.getFullName());
+        novo.setEmail(dados.getEmail());
+        novo.setPassword(passwordEncoder.encode(dados.getPassword()));
+        return usuarioRepository.save(novo);
     }
 
-    public usuario atualizar(Long id, usuario dadosNovos) {
-        usuario usuario = buscarPorId(id);
-        usuario.setFullName(dadosNovos.getFullName());
-        usuario.setEmail(dadosNovos.getEmail( ));
-        return usuarioRepository.save(usuario);
+    public usuario atualizar(Long id, usuarioUpdateRequest dados) {
+        usuario existente = buscarPorId(id);
+        existente.setFullName(dados.getFullName());
+        existente.setEmail(dados.getEmail());
+        return usuarioRepository.save(existente);
     }
 
     public void deletar(Long id) {
+        buscarPorId(id);
         usuarioRepository.deleteById(id);
     }
 }
