@@ -1,6 +1,7 @@
 package com.servicehub.servicehub_api.Service;
 
 import com.servicehub.servicehub_api.dto.usuarioRequest;
+import com.servicehub.servicehub_api.service.usuarioService;
 import com.servicehub.servicehub_api.exception.BusinessException;
 import com.servicehub.servicehub_api.exception.ResourceNotFoundException;
 import com.servicehub.servicehub_api.model.Role;

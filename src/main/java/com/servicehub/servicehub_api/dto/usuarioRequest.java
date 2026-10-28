@@ -1,5 +1,6 @@
 package com.servicehub.servicehub_api.dto;
 
+import com.servicehub.servicehub_api.model.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -23,4 +24,7 @@ public class usuarioRequest {
     @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres")
     @Schema(description = "Senha com no mínimo 8 caracteres", example = "senha1234")
     private String password;
+
+    @Schema(description = "Perfil: CLIENT ou PROVIDER (padrão CLIENT)", example = "CLIENT")
+    private Role role;
 }

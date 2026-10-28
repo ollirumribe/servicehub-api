@@ -2,6 +2,7 @@ package com.servicehub.servicehub_api.dto;
 
 import com.servicehub.servicehub_api.model.usuario;
 import io.swagger.v3.oas.annotations.media.Schema;
+import com.servicehub.servicehub_api.model.Role;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -16,6 +17,8 @@ public class usuarioResponse {
     @Schema(example = "maria@servicehub.com")
     private String email;
     private LocalDateTime createdAt;
+    private Role role;
+
 
     public static usuarioResponse from(usuario u) {
         usuarioResponse r = new usuarioResponse();
@@ -23,6 +26,7 @@ public class usuarioResponse {
         r.setFullName(u.getFullName());
         r.setEmail(u.getEmail());
         r.setCreatedAt(u.getCreatedAt());
+        r.setRole(u.getRole());
         return r;
     }
 }

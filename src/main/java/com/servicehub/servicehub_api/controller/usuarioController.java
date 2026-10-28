@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,33 +24,39 @@ public class usuarioController {
     @Autowired
     private usuarioService usuarioService;
 
-    @Operation(summary = "Lista todos os usuários")
+    @Operation(summary = "Lista todos os usuários (somente ADMIN)")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<usuarioResponse> listarTodos() {
         return usuarioService.listarTodos().stream().map(usuarioResponse::from).toList();
     }
 
-    @Operation(summary = "Busca um usuário pelo ID", description = "Retorna 404 se o usuário não existir")
+    @Operation(summary = "Busca um usuário pelo ID (o próprio usuário ou ADMIN)")
     @GetMapping("/{id}")
-    public ResponseEntity<usuarioResponse> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<usuarioResponse> buscarPorId(@PathVariable Long id, Authentication authentication) {
+        usuarioService.verificarAcesso(id, authentication.getName());
         return ResponseEntity.ok(usuarioResponse.from(usuarioService.buscarPorId(id)));
     }
 
-    @Operation(summary = "Cadastra um usuário", description = "A senha é armazenada com hash BCrypt e nunca é devolvida")
+    @Operation(summary = "Cadastro público de usuário (CLIENT ou PROVIDER)",
+            description = "A senha é armazenada com hash BCrypt e nunca é devolvida")
     @PostMapping
     public ResponseEntity<usuarioResponse> criar(@Valid @RequestBody usuarioRequest dados) {
         usuarioResponse criado = usuarioResponse.from(usuarioService.criar(dados));
         return ResponseEntity.status(HttpStatus.CREATED).body(criado);
     }
 
-    @Operation(summary = "Atualiza nome e e-mail de um usuário")
+    @Operation(summary = "Atualiza nome e e-mail (o próprio usuário ou ADMIN)")
     @PutMapping("/{id}")
     public ResponseEntity<usuarioResponse> atualizar(@PathVariable Long id,
-                                                     @Valid @RequestBody usuarioUpdateRequest dados) {
+                                                     @Valid @RequestBody usuarioUpdateRequest dados,
+                                                     Authentication authentication) {
+        usuarioService.verificarAcesso(id, authentication.getName());
         return ResponseEntity.ok(usuarioResponse.from(usuarioService.atualizar(id, dados)));
     }
 
-    @Operation(summary = "Remove um usuário")
+    @Operation(summary = "Remove um usuário (somente ADMIN)")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         usuarioService.deletar(id);
